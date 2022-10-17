@@ -8,7 +8,7 @@ resource "aws_instance" "main" {
   }
 }
 
-resource "null_resource" "ansible" {
+resource "null_resource" "file" {
   triggers = {
     abc = timestamp()
   }
@@ -19,7 +19,7 @@ resource "null_resource" "ansible" {
       password = jsondecode(data.aws_secretsmanager_secret_version.secret.secret_string)["SSH_PASS"]
       host     = aws_instance.main.private_ip
     }
-  source      = "${COMPONENT}-${APP_VERSION}.zip"
+  source      = "${var.COMPONENT}-${var.APP_VERSION}.zip"
   destination = "/tmp/${var.COMPONENT}.zip"
   }
 }
@@ -30,6 +30,7 @@ resource "null_resource" "ansible" {
   }
 
   provisioner "remote-exec" {
+    depends_on = [null_resource.file]
     connection {
       user     = jsondecode(data.aws_secretsmanager_secret_version.secret.secret_string)["SSH_USER"]
       password = jsondecode(data.aws_secretsmanager_secret_version.secret.secret_string)["SSH_PASS"]
