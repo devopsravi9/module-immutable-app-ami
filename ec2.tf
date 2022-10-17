@@ -28,9 +28,8 @@ resource "null_resource" "ansible" {
   triggers = {
     abc = timestamp()
   }
-
+  depends_on = [null_resource.file]
   provisioner "remote-exec" {
-    depends_on = [null_resource.file]
     connection {
       user     = jsondecode(data.aws_secretsmanager_secret_version.secret.secret_string)["SSH_USER"]
       password = jsondecode(data.aws_secretsmanager_secret_version.secret.secret_string)["SSH_PASS"]
